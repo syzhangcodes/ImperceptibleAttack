@@ -35,7 +35,8 @@ def attack(model,
     init_num_evals = 100,
     verbose = True, 
     image_size=224,
-    max_query=15000):
+    max_query=15000,
+    rv_generator=None,):
     
     
     # Initialize the number of queries.
@@ -60,7 +61,8 @@ def attack(model,
                 'verbose': verbose,
                 'mask': mask,
                 'method': method,
-                'max_query': max_query
+                'max_query': max_query,
+                'rv_generator': rv_generator,
                 }
 
     # Set binary search threshold.
@@ -149,6 +151,8 @@ def approximate_gradient(model, sample, num_evals, delta, params):
     noise_shape = [num_evals] + list(params['shape'])
     if params['method'] == 'idba':
         rv = np.random.randn(*noise_shape) * params['mask']
+    elif params['method'] == 'qeba':
+        rv = params['rv_generator'].generate_ps(sample, num_evals)
     else:
         rv = np.random.randn(*noise_shape)
 
